@@ -1,0 +1,27 @@
+FROM node:19-bullseye
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+RUN npm install dotenv
+COPY . .
+
+# Agregar los argumentos que quieres pasar a la aplicación
+ARG DATABASE_USER
+ARG PASSWORD_USER
+ARG DATABASE
+ARG DATABASE_HOST
+ARG PORT_API
+ARG SSL_PRIVATE_KEY
+ARG SSL_CERTIFICATE
+
+# Definir las variables de entorno con los argumentos
+ENV DATABASE_USER=$DATABASE_USER
+ENV PASSWORD_USER=$PASSWORD_USER
+ENV DATABASE=$DATABASE
+ENV DATABASE_HOST=$DATABASE_HOST
+ENV PORT_API=$PORT_API
+ENV SSL_PRIVATE_KEY=$SSL_PRIVATE_KEY
+ENV SSL_CERTIFICATE=$SSL_CERTIFICATE
+
+EXPOSE 443
+CMD ["npm", "run", "start"]
