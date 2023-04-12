@@ -13,4 +13,5 @@ router.post('/stop', requiredToken, verifyToken, validateHostConn, containerCont
 router.post('/start', requiredToken, verifyToken, validateHostConn, containerController.startContainer);
 router.post('/inspect', requiredToken, verifyToken, validateHostConn, containerController.inspectContainer);
 router.post('/log', requiredToken, verifyToken, validateHostConn, containerController.logContainer);
+router.post('/rename',requiredToken, verifyToken, validateHostConn, containerController.renameContainer);
 module.exports = router;

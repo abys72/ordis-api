@@ -18,6 +18,9 @@ app.use(errorHandler);
 app.use('/auth', userRoutes);
 app.use('/hosts', hostRoutes)
 app.use('/docker', dockerRoutes);
+app.use((req, res, next) => {
+    res.status(404).json({ message: 'La ruta solicitada no existe' });
+  });
 if (fs.existsSync('./ssl')) {
     const files = fs.readdirSync('./ssl');
     const hasKey = files.some(file => file.endsWith('.key'));

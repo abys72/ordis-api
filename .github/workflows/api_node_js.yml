@@ -1,0 +1,74 @@
+name: Deploy API
+on:
+  push:
+    branches:
+      - release
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+          OCI_CLI_USER: ${{ secrets.OCI_USER_ID }}
+          OCI_CLI_TENANCY: ${{ secrets.OCI_TENANCY_ID }}
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
+          OCI_CLI_KEY_CONTENT: ${{ secrets.API_PRIVATE_KEY }}
+          OCI_CLI_REGION: eu-madrid-1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Log in to Docker HUB
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: abys72
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image and Push
+
+        run: |
+          docker buildx install
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -t abys72/ordiscloud-api:latest --push .
+      - name: Public IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+
+      - name: Create json
+        id: rule-json
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "rule.json"
+          json: '[{"description": "SSH Api Pull","source": "${{ steps.ip.outputs.ipv4 }}/32","protocol": "6","tcpOptions": {"destinationPortRange": {"min": 22,"max": 22}}},{"description":"Permit WEB access API","source": "35.208.124.138/32","protocol": "6","tcpOptions": {"destinationPortRange": {"min": 443,"max": 443}}},{"description": "Permit DOCKER API","source": "143.47.36.18/32","protocol": "all"}]'
+      - name: Create Rule Security Group
+        uses: oracle-actions/run-oci-cli-command@v1.1.1
+        with:
+          silent: false
+          command: |
+            oci network security-list update --security-list-id ocid1.securitylist.oc1.eu-madrid-1.aaaaaaaacpowagix2jz6lkr6acx2kurc4xjvr6xxkleehqdx3qiqf7um5msa --ingress-security-rules file://rule.json --force
+      - name: Sleep for 20 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '20s'
+      - name: ssh deploy
+        uses: appleboy/ssh-action@master
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.SSH_REMOTE_HOST }}
+          username: ubuntu
+          port: 22
+          script: |
+            docker pull docker.io/abys72/ordiscloud-api
+            docker stop ordis-api
+            docker rm ordis-api
+            docker run -d --name ordis-api -e DATABASE_USER='ordis' -e PASSWORD_USER='%EM^r4P4fK3EDtgbi5@_gyDVfU' -e DATABASE='ordis' -e DATABASE_HOST='db-ordis.ordis.cloud' -e PORT_API=443 -v /home/ubuntu/ssl:/app/ssl -p 443:443 abys72/ordiscloud-api
+            
+      - name: Update Json
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "rule.json"
+          json: '[{"description":"Permit Web access API","source": "35.208.124.138/32","protocol": "6","tcpOptions": {"destinationPortRange": {"min": 443,"max": 443}}},{"description": "Permit all network traffic from API Ordis","source": "143.47.36.18/32","protocol": "all"}]'
+      - name: Delete Rule Security Group
+        uses: oracle-actions/run-oci-cli-command@v1.1.1
+        with:
+          silent: true
+          command: |
+            oci network security-list update --security-list-id ocid1.securitylist.oc1.eu-madrid-1.aaaaaaaacpowagix2jz6lkr6acx2kurc4xjvr6xxkleehqdx3qiqf7um5msa --ingress-security-rules file://rule.json --force

@@ -1,40 +1,67 @@
 networkController = {};
 // crear, listar, eliminar, asignar.
 networkController.createNetwork = async (req, res) => {
-    try{
-      const { name } = req.body;
-      if (!name){
+  try {
+      const { name, subnet, gateway } = req.body;
+
+      if (!name || name.trim() === '') {
           res.status(400).send({
-            status: 400,
-            message: `Invalid parameter.`,
-            options: {
-              name: 'mynetwork'
-            }
-          })
+              status: 400,
+              message: `Invalid parameter.`,
+              options: {
+                  name: 'mynetwork'
+              },
+              optional: {
+                  subnet: 'ip/masck (AutoGen)',
+                  gateway: 'ip/mask (AutoGen)'
+              }
+          });
           return;
-        }      
-      const networkOptions = {
-        Name: name,
-        CheckDuplicate: true,
-        Driver: 'bridge'
+      }
+
+      if ((subnet && !gateway) || (!subnet && gateway)) {
+          res.status(400).send({
+              status: 400,
+              message: "Subnet and gateway must be provided together."
+          });
+          return;
+      }
+
+      let networkOptions = {
+          Name: name,
+          CheckDuplicate: true,
+          Driver: 'bridge'
       };
+
+      if (subnet && gateway) {
+          networkOptions.IPAM = {
+              Config: [
+                  {
+                      Subnet: subnet,
+                      Gateway: gateway
+                  }
+              ]
+          };
+      }
+
       const dockerConnection = req.dockerConn;
+
       dockerConnection.createNetwork(networkOptions, (err, network) => {
-        if (err) {
-          res.status(400).send({
-            status: 400,
-            message: "Error creating netwrk"
-          })
-          return;
-        } else {
-          res.status(200).send(`Network ${name} created with ID ${network.id}`);
-        }
+          if (err) {
+              res.status(400).send({
+                  status: 400,
+                  message: err
+              });
+              return;
+          } else {
+              res.status(200).send(`Network ${name} created with ID ${network.id}.`);
+          }
       });
-    }catch(err){
-        res.status(400).send(err);
-    }
-    
+  } catch (err) {
+      res.status(400).send(err);
+  }
 }
+
 networkController.listNetwork = async (req, res) => {
     try {
       const dockerConnection = req.dockerConn;

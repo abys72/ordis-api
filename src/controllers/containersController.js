@@ -356,4 +356,40 @@ containersController.logContainer = async (req,res) => {
         return;
     }
 }
+
+containersController.renameContainer = async (req,res) => {
+    try{
+        const { oldName, newName } = req.body;
+        if (!oldName || oldName.trim() === '' || !newName || newName.trim() === ''){
+            res.status(400).send({
+                status: 400,
+                message: "Required parameter oldName and newName"
+            })
+            return;
+        }
+        const dockerConnection = req.dockerConn;
+        const container = await dockerConnection.getContainer(oldName);
+        await container.rename({name: newName},function (err, data){
+            if(err){
+                res.status(400).send({
+                    status: 400,
+                    message: err
+                })
+                return;
+            }
+            res.status(200).send({
+                status: 200,
+                message: "Container renamed"
+            })
+        });
+    }catch(err){
+        if(err){
+            res.status(400).send({
+                status: 400,
+                message: err
+            })
+        }
+        return;
+    }
+}
 module.exports = containersController;

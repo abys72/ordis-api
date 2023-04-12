@@ -1,9 +1,9 @@
 const RemoteHost = require('../databases/models/remote_host')
-
-async function createHost(req, res){
+remoteHostController = {};
+remoteHostController.createHost = async(req, res) =>{
     try{
         const {name, host, protocol, port, ca, cert, key} = req.body;
-        if (!name || !host || !port){
+        if (!name || name.trim() === '' || !host || host.trim() === '' || !port || port.trim() === ''){
             const err= {
                 error: "Missing required values",
                 details: {
@@ -12,24 +12,36 @@ async function createHost(req, res){
                     port: '443'
                 }
             }
-            throw new Error(err);
+            res.status(400).send(err);
+            return;
         }
-        try{
+        try {
             const userId = req.data.userId;
-            const newHost = await RemoteHost.create({
-                host_name : name,
+            const [newHost, created] = await RemoteHost.findOrCreate({
+              where: {
                 user_id: userId,
-                protocol: protocol,
+                host_name: name,
                 host: host,
                 port: port,
+                protocol: protocol
+              },
+              defaults: {
                 ca: ca,
                 cert: cert,
-                provate_key: key
+                private_key: key
+              }
             });
-            res.status(200).send(newHost)
-        } catch(err) {
+          
+            if (created) {
+              res.status(200).send(newHost);
+            } else {
+              res.status(409).send({
+                message: 'Host already exists'
+              });
+            }
+          } catch (err) {
             throw new Error('Error during Insert Host');
-        }
+          }
         
     }catch(err){
         console.log(err);
@@ -37,5 +49,18 @@ async function createHost(req, res){
     }
 
 }
+remoteHostController.listHosts = async (req, res) =>{
+    try{
+        const userId = req.data.userId;
+        const remoteData = await RemoteHost.findAll({ where: { user_id: userId } });
+        res.status(200).send(remoteData);
+    }catch(err){
+        res.status(400).send({
+            status: 400,
+            message: "Not created hosts yet"
+        })
+    }
+}
 
-module.exports = createHost;
+
+module.exports = remoteHostController;

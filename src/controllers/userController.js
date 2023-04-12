@@ -30,6 +30,7 @@ async function login(req, res) {
         details: userId,
         token: tokenSession
       });
+      return;
     } else {
       res.status(400).send("Error, check Username or Credential");
     }
@@ -42,8 +43,8 @@ async function login(req, res) {
 async function singup(req, res) {
   const { email, name, password } = req.body;
 
-  if (!email || !name || !password) {
-    return res.status(400).json({
+  if (!email || email.trim() === '' || !name || name.trim() === ''|| !password || password.trim() === '') {
+    res.status(400).json({
        error: 'Debe proporcionar email, name y password',
        format: {
         email: "example@example.com",
@@ -51,6 +52,7 @@ async function singup(req, res) {
         password: "password"
        } 
       });
+      return;
   }
   const user = await OrdisUser.findOne({where: {email: email}});
   if (user) {
@@ -66,7 +68,7 @@ async function singup(req, res) {
       user_name: name,
       credential: passwordHash
     });
-    res.send({ data: registerUser });
+    res.status(200).send({ data: registerUser });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error interno del servidor' });

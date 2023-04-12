@@ -8,7 +8,7 @@ async function connectDockerHost(req, res) {
     const { hostid, scoketPath } = req.body;
     const user_identification = req.data.userId;
     const scoket = scoketPath || '/var/run/docker.sock';
-    if (!hostid || !user_identification){
+    if (!hostid || hostid == null){
       var err = {
         error: 400, 
         hostid : "integer",
@@ -16,7 +16,11 @@ async function connectDockerHost(req, res) {
           scoketPath: "path"
         }
       }
-      throw new Error(err);
+      res.status(400).send({
+        status: 400,
+        message: err
+      })
+      return;
     }
     const remoteDataHost = await RemoteHost.findOne({
       where: {
@@ -26,8 +30,13 @@ async function connectDockerHost(req, res) {
         ]
       }
     });
-    if (remoteDataHost == '' || null){
-      res.status(404).send('Host not found')
+    if (!remoteDataHost || remoteDataHost == null){
+      console.log("h2")
+      res.status(400).send({
+        status: 400,
+        message: 'Host not found'
+      });
+      return;
     }
     const dockerHosts = 
       {
@@ -55,7 +64,6 @@ async function connectDockerHost(req, res) {
     res.status(400).send(`Error establishing connection: ${err.message}`);  
   }
   } catch (err) {
-    console.log(err);
     res.status(500).send(err);
   }
 }
