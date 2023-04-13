@@ -18,20 +18,24 @@ app.use(errorHandler);
 app.use('/auth', userRoutes);
 app.use('/hosts', hostRoutes)
 app.use('/docker', dockerRoutes);
+
+
 app.use((req, res, next) => {
     res.status(404).json({ message: 'La ruta solicitada no existe' });
   });
 if (fs.existsSync('./ssl')) {
-    const files = fs.readdirSync('./ssl');
-    const hasKey = files.some(file => file.endsWith('.key'));
-    const hasPem = files.some(file => file.endsWith('.pem')) || files.some(file => file.endsWith('.crt'));
+    const hasKey = process.env.SSL_PRIVATE_KEY;
+    const hasPem = process.env.SSL_CERTIFICATE;
     if (hasKey && hasPem) {
         https.createServer({
-            key: fs.readFileSync(`./ssl/${files.find(file => file.endsWith('.key'))}`),
-            cert: fs.readFileSync(`./ssl/${files.find(file => file.endsWith('.pem') || file.endsWith('.crt'))}`)
+            key: fs.readFileSync(hasKey),
+            cert: fs.readFileSync(hasPem)
         }, app).listen(port, () => {
             console.log(`HTTPS server started: ${port}`);
         });
+        app.get('*', function(req, res) {  
+            res.redirect('https://' + req.headers.host + req.url);
+        })
     } else {
         app.listen(port, () => {
             console.log(`HTTP server started: ${port}`);
@@ -40,4 +44,3 @@ if (fs.existsSync('./ssl')) {
 } else {
     console.log("Error: no SSL folder found. Consider uploading the necessary SSL files to the server.");
 }
-
