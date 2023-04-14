@@ -31,6 +31,10 @@ const OrdisUser = dbconnection.define('ordis_user', {
     id_groups: {
       type: Sequelize.INTEGER,
       allowNull: true
+    },
+    ratelogin: {
+      type: Sequelize.DATE,
+      allowNull: true
     }
   }, {
     timestamps: false,

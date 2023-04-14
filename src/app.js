@@ -1,33 +1,14 @@
-require('dotenv').config();
+const { app } = require('./server');
 const fs = require('fs');
 const https = require('https');
-const errorHandler = require('./helpers/errorHandler')
-const cors = require("cors");
-const express = require("express");
-const morgan = require('morgan');
-const app=express();
-const userRoutes = require('./routes/userRoutes');
-const hostRoutes = require('./routes/hostRoutes');
-const dockerRoutes = require('./routes/dockerRoutes');
 const port = process.env.PORT_API || 443;
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
-app.use(errorHandler);
 
-app.use('/auth', userRoutes);
-app.use('/hosts', hostRoutes)
-app.use('/docker', dockerRoutes);
-
-
-app.use((req, res, next) => {
-    res.status(404).json({ message: 'La ruta solicitada no existe' });
-  });
-if (fs.existsSync('./ssl')) {
-    const hasKey = process.env.SSL_PRIVATE_KEY;
-    const hasPem = process.env.SSL_CERTIFICATE;
-    if (hasKey && hasPem) {
-        https.createServer({
+const hasKey = '/etc/ssl/certs/'+process.env.SSL_PRIVATE_KEY;
+const hasPem = '/etc/ssl/certs/'+process.env.SSL_CERTIFICATE;
+if (hasKey && hasPem) {
+    if (fs.existsSync(hasKey) && fs.existsSync(hasPem)) {
+        try{
+            https.createServer({
             key: fs.readFileSync(hasKey),
             cert: fs.readFileSync(hasPem)
         }, app).listen(port, () => {
@@ -36,11 +17,20 @@ if (fs.existsSync('./ssl')) {
         app.get('*', function(req, res) {  
             res.redirect('https://' + req.headers.host + req.url);
         })
+        }catch(err){
+            console.error('Error starting HTTPS server:', err.message);
+            console.log('Starting HTTP server instead...');
+            app.listen(port, () => {
+              console.log(`HTTP server started: ${port}`);
+            });
+          }
     } else {
         app.listen(port, () => {
             console.log(`HTTP server started: ${port}`);
         });
     }
 } else {
-    console.log("Error: no SSL folder found. Consider uploading the necessary SSL files to the server.");
+    app.listen(port, () => {
+        console.log(`HTTP server started: ${port}`);
+    });
 }

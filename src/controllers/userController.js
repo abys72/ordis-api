@@ -17,7 +17,7 @@ async function login(req, res) {
     }
     const userId = await OrdisUser.findOne({where: {email: email}});
     if (!userId) {
-      res.status(404).send({error: "User not found"});
+      res.status(404).send({error: "User or Password incorrect or not found"});
       return;
     }
     const checkPassword = await checkHash(password, userId.credential);
@@ -25,6 +25,7 @@ async function login(req, res) {
       email, 
       userId: userId.user_id
     });
+    await OrdisUser.update({ratelogin: new Date()}, {where: {user_id: userId.user_id}});
     if (checkPassword) {
       res.status(200).json({
         details: userId,
@@ -35,7 +36,6 @@ async function login(req, res) {
       res.status(400).send("Error, check Username or Credential");
     }
   } catch (error) {
-    console.log(error);
     res.status(500).send("Server error");
   }
 }

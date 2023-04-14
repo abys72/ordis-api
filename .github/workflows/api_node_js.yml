@@ -59,7 +59,7 @@ jobs:
             docker pull docker.io/abys72/ordiscloud-api
             docker stop ordis-api
             docker rm ordis-api
-            docker run -d --name ordis-api -e DATABASE_USER='ordis' -e PASSWORD_USER='%EM^r4P4fK3EDtgbi5@_gyDVfU' -e DATABASE='ordis' -e DATABASE_HOST='db-ordis.ordis.cloud' -e PORT_API=443 -e SSL_CERTIFICATE=./ssl/cert.pem -e SSL_PRIVATE_KEY='./ssl/privkey.pem' -v  /home/ubuntu/ssl:/app/ssl -p 443:443 -p 80:80 abys72/ordiscloud-api
+            docker run -d --name ordis-api -e DATABASE_USER='ordis' -e PASSWORD_USER='%EM^r4P4fK3EDtgbi5@_gyDVfU' -e DATABASE='ordis' -e DATABASE_HOST='db-ordis.ordis.cloud' -e PORT_API=443 -e SSL_CERTIFICATE='cert.pem' -e SSL_PRIVATE_KEY='privkey.pem' -v  /home/ubuntu/ssl:/etc/ssl/certs -p 443:443 -p 80:80 abys72/ordiscloud-api
             
       - name: Update Json
         uses: jsdaniell/create-json@v1.2.2
