@@ -43,7 +43,10 @@ const RemoteHost = dbconnection.define('remote_host',{
 },{
     timestamps: false,
     tableName: 'remote_host',
-    schema: 'docker'
 });
-
+RemoteHost.sync().then(() => {
+    console.log('Remote Host table created successfully.');
+  }).catch((error) => {
+    console.error(`Error creating remote_host table: ${error}`);
+  });
 module.exports = RemoteHost;

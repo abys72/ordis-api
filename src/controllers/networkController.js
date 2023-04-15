@@ -67,10 +67,12 @@ networkController.listNetwork = async (req, res) => {
       const dockerConnection = req.dockerConn;
       dockerConnection.listNetworks(function (err, networks) {
         if (err) {
-          res.status(400).send(err);
+          res.status(400).send({
+            error: "Error during creation of network",
+            message: err
+          });
           return;
         }
-  
         const networkList = networks.map((network) => {
           return {
               name: network.Name,

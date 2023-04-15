@@ -1,4 +1,3 @@
-const CircularJSON = require('circular-json');
 const containersController = {};
 // Crear, Ejecutar, Detener, Reiniciar, eliminar, inspeccionar, monitorizar
 containersController.listContainers = async (req, res) => {
@@ -344,7 +343,7 @@ containersController.logContainer = async (req,res) => {
                 })
                 return;
             }
-            res.status(200).send(CircularJSON.stringify(data));
+            res.status(200).send(JSON.stringify(data));
         });
     }catch(err){
         if(err){

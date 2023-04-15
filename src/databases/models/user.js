@@ -33,14 +33,17 @@ const OrdisUser = dbconnection.define('ordis_user', {
       allowNull: true
     },
     ratelogin: {
-      type: Sequelize.DATE,
+      type: Sequelize.DATE(6),
       allowNull: true
     }
   }, {
     timestamps: false,
     tableName: 'ordis_user',
-    schema: 'docker'
   });
-
+OrdisUser.sync().then(() => {
+  console.log('User table created successfully.');
+}).catch((error) => {
+  console.error(`Error creating ordis_user table: ${error}`);
+});
 
 module.exports = OrdisUser;

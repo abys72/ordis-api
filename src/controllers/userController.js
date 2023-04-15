@@ -16,7 +16,7 @@ async function login(req, res) {
       return;
     }
     const userId = await OrdisUser.findOne({where: {email: email}});
-    if (!userId) {
+    if (!userId ||userId === null) {
       res.status(404).send({error: "User or Password incorrect or not found"});
       return;
     }
@@ -28,7 +28,11 @@ async function login(req, res) {
     await OrdisUser.update({ratelogin: new Date()}, {where: {user_id: userId.user_id}});
     if (checkPassword) {
       res.status(200).json({
-        details: userId,
+        details: {
+          email: userId.email,
+          user_name: userId.user_name,
+          surname: userId.surname,
+        },
         token: tokenSession
       });
       return;
@@ -68,7 +72,10 @@ async function singup(req, res) {
       user_name: name,
       credential: passwordHash
     });
-    res.status(200).send({ data: registerUser });
+    res.status(200).send({
+      status: 200,
+      message: "User created successfully"
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error interno del servidor' });

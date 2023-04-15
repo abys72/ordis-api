@@ -10,14 +10,15 @@ const sequalize = new Sequelize(
         host: process.env.DATABASE_HOST,
         dialect: 'postgres',
         protocol: 'postgres',
-        schema: 'docker',
         dialectOptions: {
         },
+        schema: 'public',
+        logging: false
     }
 );
 
 sequalize.authenticate().then(() => {
-    console.log('Connected to database');
+    console.log(`Connected to database ${process.env.DATABASE}`);
   }).catch((error) => {
     console.error(`Error connecting to database: ${error}`);
   });

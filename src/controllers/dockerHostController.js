@@ -2,7 +2,6 @@ const dockerode = require('dockerode');
 const RemoteHost = require('../databases/models/remote_host')
 const { Op } = require('sequelize');
 const dockerHostCache = require('../caches/dockerHostCache');
-
 async function connectDockerHost(req, res) {
   try{
     const { hostid, scoketPath } = req.body;
@@ -55,11 +54,10 @@ async function connectDockerHost(req, res) {
       dockerConnections.ping(function(err, data) {
         if(err){
           res.status(400).send(`Error conection: ${err}`);
-        } else{
-          res.status(200).send(data);
         }
       });
       dockerHostCache.cacheDockerConnection(user_identification, dockerConnections);
+      res.status(200).send("Connected to host");
   } catch (err) {
     res.status(400).send(`Error establishing connection: ${err.message}`);  
   }
