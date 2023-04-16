@@ -23,6 +23,7 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
+    "path": "^0.12.7",
     "pg": "^8.10.0",
     "pg-hstore": "^2.3.4",
     "safe-json-stringify": "^1.2.0",

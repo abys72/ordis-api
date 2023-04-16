@@ -41,7 +41,7 @@ jobs:
       - name: Create Rule Security Group
         uses: oracle-actions/run-oci-cli-command@v1.1.1
         with:
-          silent: false
+          silent: true
           command: |
             oci network security-list update --security-list-id ocid1.securitylist.oc1.eu-madrid-1.aaaaaaaacpowagix2jz6lkr6acx2kurc4xjvr6xxkleehqdx3qiqf7um5msa --ingress-security-rules file://rule.json --force
       - name: Sleep for 20 seconds
@@ -59,7 +59,7 @@ jobs:
             docker pull docker.io/abys72/ordiscloud-api
             docker stop ordis-api
             docker rm ordis-api
-            docker run -d --name ordis-api -e DATABASE_USER='ordis' -e PASSWORD_USER='%EM^r4P4fK3EDtgbi5@_gyDVfU' -e DATABASE='ordis' -e DATABASE_HOST='db-ordis.ordis.cloud' -e PORT_API=443 -e SSL_CERTIFICATE='cert.pem' -e SSL_PRIVATE_KEY='privkey.pem' -v  /home/ubuntu/ssl:/etc/ssl/certs -p 443:443 -p 80:80 abys72/ordiscloud-api
+            docker run -d --name ordis-api -e DATABASE_USER='ordis' -e PASSWORD_USER='%EM^r4P4fK3EDtgbi5@_gyDVfU' -e DATABASE='ordis' -e DATABASE_HOST='db-ordis.ordis.cloud' -e PORT_API=443 -e SSL_CERTIFICATE='/etc/ssl/certs/fullchain.pem' -e SSL_PRIVATE_KEY='/etc/ssl/certs/privkey.pem' -v  /home/ubuntu/ssl:/etc/ssl/certs -p 443:443 -p 80:80 abys72/ordiscloud-api
             
       - name: Update Json
         uses: jsdaniell/create-json@v1.2.2

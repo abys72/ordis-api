@@ -14,7 +14,11 @@ const RemoteHost = dbconnection.define('remote_host',{
     },
     user_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {
+            model: 'ordis_user',
+            key: 'user_id',
+        }
     },
     protocol: {
         type: Sequelize.STRING(5),
@@ -44,9 +48,6 @@ const RemoteHost = dbconnection.define('remote_host',{
     timestamps: false,
     tableName: 'remote_host',
 });
-RemoteHost.sync().then(() => {
-    console.log('Remote Host table created successfully.');
-  }).catch((error) => {
-    console.error(`Error creating remote_host table: ${error}`);
-  });
+
+
 module.exports = RemoteHost;

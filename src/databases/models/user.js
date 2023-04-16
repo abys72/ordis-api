@@ -30,7 +30,11 @@ const OrdisUser = dbconnection.define('ordis_user', {
     },
     id_groups: {
       type: Sequelize.INTEGER,
-      allowNull: true
+      allowNull: true,
+      references: {
+        model: 'groups',
+        key: 'groups_id',
+      }
     },
     ratelogin: {
       type: Sequelize.DATE(6),
@@ -40,10 +44,6 @@ const OrdisUser = dbconnection.define('ordis_user', {
     timestamps: false,
     tableName: 'ordis_user',
   });
-OrdisUser.sync().then(() => {
-  console.log('User table created successfully.');
-}).catch((error) => {
-  console.error(`Error creating ordis_user table: ${error}`);
-});
+
 
 module.exports = OrdisUser;
