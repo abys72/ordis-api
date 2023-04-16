@@ -29,6 +29,7 @@ async function login(req, res) {
     if (checkPassword) {
       res.status(200).json({
         details: {
+          id: userId.user_id,
           email: userId.email,
           user_name: userId.user_name,
           surname: userId.surname,
@@ -67,7 +68,7 @@ async function singup(req, res) {
   }
   try {
     const passwordHash = await encrypt(password);
-    const registerUser = await OrdisUser.create({
+    await OrdisUser.create({
       email: email,
       user_name: name,
       credential: passwordHash
