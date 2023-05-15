@@ -2,14 +2,17 @@ const RemoteHost = require('../databases/models/remote_host')
 remoteHostController = {};
 remoteHostController.createHost = async(req, res) =>{
     try{
-        const {name, host, protocol, port, ca, cert, key} = req.body;
+        const {name, host, protocol, user, password, port, ca, cert, key} = req.body;
         if (!name || name.trim() === '' || !host || host.trim() === '' || !port || port.trim() === ''){
             const err= {
                 error: "Missing required values",
                 details: {
                     name: 'web',
                     host: 'myweb.com',
-                    port: '443'
+                    port: '443',
+                    user: 'myuser',
+                    password: 'password',
+                    private_key: 'myfile'
                 }
             }
             res.status(400).send(err);
@@ -23,7 +26,9 @@ remoteHostController.createHost = async(req, res) =>{
                 host_name: name,
                 host: host,
                 port: port,
-                protocol: protocol
+                protocol: protocol,
+                user: user,
+                password: password
               },
               defaults: {
                 ca: ca,

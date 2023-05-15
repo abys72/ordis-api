@@ -28,6 +28,14 @@ const RemoteHost = dbconnection.define('remote_host',{
         type: Sequelize.STRING(100),
         allowNull: false
     },
+    user: {
+        type: Sequelize.STRING(100),
+        allowNull: true
+    },
+    password: {
+        type: Sequelize.STRING(100),
+        allowNull: true
+    },
     port: {
         type: Sequelize.INTEGER,
         allowNull: false

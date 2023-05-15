@@ -3,7 +3,7 @@ const cors = require("cors");
 const express = require("express");
 const morgan = require('morgan');
 const helmet = require('helmet');
-const safeStringify = require('safe-json-stringify');
+const terminalRoutes = require('./routes/terminalCommand');
 const session = require('express-session');
 const app=express();
 const userRoutes = require('./routes/userRoutes');
@@ -24,7 +24,7 @@ app.use(helmet());
 app.use('/auth', userRoutes);
 app.use('/hosts', hostRoutes)
 app.use('/docker', dockerRoutes);
-
+app.use('/shell', terminalRoutes);
 app.use((req, res, next) => {
     res.status(404).json({ message: 'La ruta solicitada no existe' });
 });
