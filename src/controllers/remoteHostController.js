@@ -43,7 +43,11 @@ remoteHostController.createHost = async(req, res) =>{
               });
             }
           } catch (err) {
-            throw new Error('Error during Insert Host');
+            console.error('Error during Insert Host:', err);
+            res.status(500).send({
+              message: 'Error during Insert Host',
+              error: err.message
+            });
           }
         
     }catch(err){
