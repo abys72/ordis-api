@@ -27,8 +27,6 @@ remoteHostController.createHost = async(req, res) =>{
                 host: host,
                 port: port,
                 protocol: protocol,
-                user: user,
-                password: password
               },
               defaults: {
                 ca: ca,
